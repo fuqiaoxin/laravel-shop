@@ -18,7 +18,7 @@ class AddCartRequest extends Request
         return [
             'sku_id' => [
                 'required',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail) {  // 这个闭包接受 3 个参数，分别是参数名、参数值和错误回调
                     if (!$sku = ProductSku::find($value)) {
                         $fail('该商品不存在');
                         return;

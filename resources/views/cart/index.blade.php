@@ -51,6 +51,34 @@
                         @endforeach
                         </tbody>
                     </table>
+
+                    <!-- 收货地址开始 -->
+                    <div>
+                        <form class="form-horizontal" role="form" id="order-form">
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">选择收货地址</label>
+                                <div class="col-sm-9 col-md-7">
+                                    <select class="form-control" name="address">
+                                        @foreach($addresses as $address)
+                                            <option value="{{ $address->id }}">{{ $address->full_address }} {{ $address->contact_name }} {{ $address->contact_phone }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">备注</label>
+                                <div class="col-sm-9 col-md-7">
+                                    <textarea name="remark" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-3 col-sm-3">
+                                    <button type="button" class="btn btn-primary btn-create-order">提交订单</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- 收货地址结束 -->
                 </div>
             </div>
         </div>
@@ -95,6 +123,60 @@
             })
 
         });
+
+        // 监听创建订单按钮的点击事件
+        $('.btn-create-order').click(function () {
+            // 构建请求参数，将用户选择的地址 id 和备注内容写入请求参数
+            var req = {
+                address_id: $('#order-form').find('select[name=address]').val(),
+                items: [],
+                remark: $('#order-form').find('textarea[name=remark]').val()
+            };
+
+            // 遍历 <table> 标签内所有带有 data-id属性的 <tr> 标签， 也就是每一个购物车中的商品 SKU
+            $('table tr[data-id]').each(function () {
+                // 获取当前行的单选框
+                var $checkbox = $(this).find('input[name=select][type=checkbox]');
+                if ($checkbox.prop('disabled') || !$checkbox.prop('checked')) {
+                    return;
+                }
+
+                // 获取当前行中数量输入框
+                var $input = $(this).find('input[name=amount]');
+
+                // 如果用户将数量设为 0 或者不是一个数字，也跳过
+                if ($input.val() == 0 || isNaN($input.val())) {
+                    return;
+                }
+
+                // 把 SKU id 和数量存入请求参数数组中
+                req.items.push({
+                    sku_id: $(this).data('id'),
+                    amount: $input.val(),
+                });
+            });
+
+            axios.post('{{ route('orders.store') }}',req)
+                .then(function (response) {
+                    swal('订单提交成功', '', 'success');
+                }, function (error) {
+                    if (error.response.status === 422) {
+                        // http 状态码为 422 代表用户输入校验失败
+                        var html = '<div>';
+                        _.each(error.response.data.errors,function (errors) {
+                           _.each(errors, function (error) {
+                               html += error + '<br>';
+                           })
+                        });
+                        html +='</div>';
+                        swal({content: $(html)[0], icon: 'error'});
+                    }else {
+                        swal('系统错误', '', 'error');
+                    }
+                });
+
+        });
+
 
     });
 </script>
