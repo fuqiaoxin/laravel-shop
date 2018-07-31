@@ -50,6 +50,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('orders/{order}/review', 'OrdersController@saveReview')->name('orders.review.store');
         Route::post('orders/{order}/apply_refund', 'OrdersController@applyRefund')->name('orders.apply_refund');
 
+
     });
 });
 
@@ -59,3 +60,4 @@ Route::get('products/{product}', 'ProductsController@show')->name('products.show
 
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
 Route::post('payment/wechat/notify', 'PaymentController@wechatNotify')->name('payment.wechat.notify');
+Route::post('payment/wechat/refund_notify', 'PaymentController@wechatRefundNotify')->name('payment.wechat.refund_notify');
