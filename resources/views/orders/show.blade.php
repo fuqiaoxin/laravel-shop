@@ -118,6 +118,14 @@
                                 @endif
 
                             </div>
+
+                            @if(isset($order->extra['refund_disagree_reason']))
+                                <div>
+                                    <span>拒绝退款理由：</span>
+                                    <div class="value">{{ $order->extra['refund_disagree_reason'] }}</div>
+                                </div>
+                            @endif
+
                         </div>
                     </div>
                 </div>
